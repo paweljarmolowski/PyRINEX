@@ -6,7 +6,10 @@ class RINEXnav:
     def reading_line(cls,rnxfile):
         with open(rnxfile,"r") as rnxfile:
             for line in rnxfile:
-                print(rnxfile.readline(5))
-                return line
-            
-RINEXnav.reading_line('D:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx')
+                return line.split('           ')
+                
+new = RINEXnav.reading_line('D:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx')
+
+# TEST 
+
+print(new)
