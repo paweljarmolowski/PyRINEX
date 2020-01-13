@@ -2,27 +2,29 @@
 def read_navigation_file(nav_file):
     global epochDict
     import re
+
     epochDict = {}
-    #nav_file = r"d:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx"
+
     with open(nav_file, 'r') as nav:
         for row in nav:
-            
             if 'END OF HEADER' in row:
-# Sprawdzam czy skrypt dotarł do konca headera                
+
+# Sprawdzam czy skrypt dotarł do konca headera
                 print("############## END OF HEADER ###################\n")
                 break
-# Zaczynam itreowac sekcje z obserwacjami             
-        for wiersz in nav:
-# Jezeli znajdzie G to przydziela zmienna nazwie satelity oraz dacie
-            if "G" in wiersz:
+            
+# Zaczynam itreowac sekcje z obserwacjami
+        for wiersz in nav: 
+            if "G" in wiersz: # Jezeli znajdzie G to przydziela zmienna nazwie satelity oraz dacie
+
 # Za pomocą wyrażenia regulatnego wyszukuje obserwacje w wierszu , który zawiera
 # datę oraz numer satelity
                 d = re.compile("^/s*|\-*\d{1}\.\d{12}D[+|-]\d{2}")
-                
                 a = d.findall(wiersz)
                 sat_num = wiersz[0:3]
                 date = wiersz[3:23]
-# Dodaje numer satelity , datę oraz trzy pierwsze obserwacje do słownika
+
+# Dodaje numer satelity , datę oraz pięć pierwszych obserwacje do słownika
                 epochDict = {
                 'sat_num':sat_num,
                 'date':date,
@@ -31,13 +33,16 @@ def read_navigation_file(nav_file):
                 'a1':a[1],
                 'a2':a[2]
                 }}
-                #print(epochDict)
+
+
 # Dodaje zmienną wskazująca numer iteracji
                 index = 0
             else:
+
 # Jeżeli nie znajdę stringa "G" w linijce znaczy , że jestem w linijce z obserwacjami
                 c = re.compile("/s*|\-*\d{1}\.\d{12}D[+|-]\d{2}")
                 w = c.findall(wiersz)
+
 # Index 0 oznacza ,że jestem w pierwszej linijce z obserwacjami 
                 if index == 0:
                     epochDict['data']['aode'] = w[0]
