@@ -3,7 +3,7 @@ class RINEXnav:
     def __init__(self,rnxfile,sat_num): # moglbym dac tu epochDict jako pusty slownik domyslnie 
         self.rnxfile = rnxfile
         self.sat_num = sat_num
-
+        # czy dodac parametr self.line ????
     def read_line(self):
         for line in open(self.rnxfile):
             if self.sat_num in line:
