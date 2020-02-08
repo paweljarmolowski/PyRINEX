@@ -244,24 +244,54 @@ class RINEXnav:
         Z=(y_prim * math.sin(inklinacja)) / 1000
         
         print("Tropoentric coordinates of satellites X:{} Y:{} Z:{}:".format(X,Y,Z))
-        XYZ = np.array([X, Y, Z])
+        XYZ = [X, Y, Z]
         print(XYZ)
         return XYZ
 ############################################################################################################        
     def plot_sat_XYZ(self,XYZ):
             
         """Function to plot 3D stellite position """
-        from matplotlib import pyplot
+        from matplotlib import pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
+        import numpy as np
         
+        RAD = 6371
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Make data
+        plt.title('Topocentric Coordinates of satellite')
+        ax.set_xlabel('X(km)')
+        ax.set_ylabel('Y(km)')       
+        ax.set_zlabel('Z(km)')
+        u = np.linspace(0, 2 * np.pi, 100)
+        v = np.linspace(0, np.pi, 100)
+        x = RAD * np.outer(np.cos(u), np.sin(v))
+        y = RAD * np.outer(np.sin(u), np.sin(v))
+        z = RAD * np.outer(np.ones(np.size(u)), np.cos(v))
+        
+        X = (RAD + XYZ[0]) + (500 * np.outer(np.cos(u), np.sin(v)))
+        Y = (RAD + XYZ[1]) + (500 * np.outer(np.sin(u), np.sin(v)))
+        Z = (RAD + XYZ[2]) + (500 * np.outer(np.ones(np.size(u)), np.cos(v)))
+
+
+        # Plot the surface
+        ax.plot_surface(x, y, z)
+        
+        ax.plot_surface(X, Y, Z)
+        
+        plt.show()
+
+       
+        
+        """
         # Create the figure
         fig = pyplot.figure()
         ax = fig.add_subplot(111, projection='3d')
-
         # Generate the values
-        x_vals = XYZ[1,:]
-        y_vals = XYZ[2,:]
-        z_vals = XYZ[3,:]
+        x_vals = XYZ[0]
+        y_vals = XYZ[1]
+        z_vals = XYZ[2]
 
         # Plot the values
         ax.scatter(x_vals, y_vals, z_vals, c = 'b', marker='o')
@@ -269,7 +299,9 @@ class RINEXnav:
         ax.set_ylabel('Y-axis')
         ax.set_zlabel('Z-axis')
 
-        pyplot.show()
+         # Plot the surface
+        ax.plot_surface(x, y, z)
+        pyplot.show()"""
 ############################################################################################################   
     
     
@@ -289,4 +321,4 @@ wroclaw_navigation.to_pandas_DataFrame(satellites)
 wroclaw_navigation.calculatin_sat_XYZ(epochFrame)
 
 # Testing method --> plot_sat_XYZ()
-#wroclaw_navigation.plot_sat_XYZ(XYZ)
+wroclaw_navigation.plot_sat_XYZ(XYZ)
