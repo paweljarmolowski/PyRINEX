@@ -163,27 +163,13 @@ class RINEXnav:
         
         E = M + XYZ_Frame['e'] * math.sin(M)
         print("Eccentric anomaly in rad E:{}".format(E))
-        #for i in range(1,20):
-        #    E_list = list(M + XYZ_Frame['e'] * math.sin(E[i-1]
-        #    print(E[i])
-        #    if E[i+1]-E[i]<0.00000000001:
-        #        break
         
-        #Ek=E[:-1]
+        e = XYZ_Frame['e']
         
-        #E = []
-        #error = 0.000001
-        
-        ##############################################
-        #for i in range(1,10): 
-        #    Ek = M+e*sin(Ek)
-        #    E = E.append(Ek)
-        #    if Ek[-1] - E [-2] <  error:
-        #        break
-        
-        #    if E(i+1)-E(i) < 0.00000000001:
-        #        break
-        #Ek=E(end)
+        for i in range(1,10): 
+            E = M+e*math.sin(E)
+            print("{} step of iteration. E is equal to: {} \n".format(i,E))
+    
         
         #calculations of satellite clock error
         dt_rel = ((-2) * math.sqrt(GM) * XYZ_Frame['e'] * XYZ_Frame['sqrt_a'] * math.sin(E)) / c**2
