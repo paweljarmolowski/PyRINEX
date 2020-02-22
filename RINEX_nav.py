@@ -131,8 +131,9 @@ class RINEXnav:
         """
         import pandas as pd
         global epochFrame
+        global how_many_rows
         epochFrame = pd.DataFrame.from_dict(satellites,orient='index',dtype='float64')
-        print('Number of columns in epochFrame:',len(epochFrame.columns))
+        print('Number of columns in epochFrame:',len(epochFrame.index))
         print('Number of rows in epochFrame:',len(epochFrame.index))
         print(epochFrame.head(100))
         return epochFrame
@@ -140,14 +141,17 @@ class RINEXnav:
     def calculatin_sat_XYZ(self,epochFrame):
         import math
         import numpy as np
+        import pandas as pd
         global XYZ
+        global XYZ_Frame
+        
         GM = 398600500000000
         omega_e = 0.00007292115
         dt = 900
         c = 299792458
         
         XYZ_Frame = epochFrame.iloc[self.num_of_row,:]
-        #print(XYZ_Frame.tail())
+        print(XYZ_Frame.tail())
         
         a = XYZ_Frame['sqrt_a']**2
         print("Major half-axis parameter a:{}".format(a))
@@ -216,13 +220,13 @@ class RINEXnav:
         y_prim = r * math.sin(u)
         
         Cic = XYZ_Frame['Cic'] 
-        Cis =XYZ_Frame['Cis']
+        Cis = XYZ_Frame['Cis']
         Cic_Cis = np.array([Cic, Cis])
         
         inklinacja = XYZ_Frame['i0']+XYZ_Frame['i_dot']*dt+np.matmul(Cic_Cis, cos2fi_sin2fi)
         print("Inclination parameter {}".format(inklinacja))
         
-        OMEGA = XYZ_Frame['OMEGA_0'] + XYZ_Frame['OMEGA_kropka'] * dt -omega_e * dt # Here add some t_oe parameter 
+        OMEGA = XYZ_Frame['OMEGA_0'] + XYZ_Frame['OMEGA_kropka'] * dt - omega_e * dt # Here add some t_oe parameter 
         print("Omega prametr value {}".format(OMEGA))
         
         X=(x_prim * math.cos(OMEGA) - y_prim * math.sin(OMEGA) * math.cos(inklinacja)) / 1000
@@ -231,17 +235,23 @@ class RINEXnav:
         
         print("Tropoentric coordinates of satellites X:{} Y:{} Z:{}:".format(X,Y,Z))
         XYZ = [X, Y, Z]
+        XYZ_convert = [str(X), str(Y), str(Z)]
+        str_XYZ = ','.join(XYZ_convert)
+        # to CSV file export
+        with open('document.csv','a') as fd:
+            fd.write(XYZ_Frame.name + ',' + str(XYZ_Frame['sat_num']) + ',' + str_XYZ + '\n')
+            # TODO dodac epoke do csv
         print(XYZ)
         return XYZ
 ############################################################################################################        
     def plot_sat_XYZ(self,XYZ):
             
-        """Function to plot 3D stellite position """
+        """Function to plot 3D satellite position """
         from matplotlib import pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         import numpy as np
-        
+        # Earth radius
         RAD = 6371
+        # Creating a chart
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
@@ -250,61 +260,48 @@ class RINEXnav:
         ax.set_xlabel('X(km)')
         ax.set_ylabel('Y(km)')       
         ax.set_zlabel('Z(km)')
+        
+        # Earth as a sphere
         u = np.linspace(0, 2 * np.pi, 100)
         v = np.linspace(0, np.pi, 100)
         x = RAD * np.outer(np.cos(u), np.sin(v))
         y = RAD * np.outer(np.sin(u), np.sin(v))
         z = RAD * np.outer(np.ones(np.size(u)), np.cos(v))
         
+        # Satellite position
         X = (RAD + XYZ[0]) + (500 * np.outer(np.cos(u), np.sin(v)))
         Y = (RAD + XYZ[1]) + (500 * np.outer(np.sin(u), np.sin(v)))
         Z = (RAD + XYZ[2]) + (500 * np.outer(np.ones(np.size(u)), np.cos(v)))
 
 
-        # Plot the surface
+        # Plot the surfaces
         ax.plot_surface(x, y, z)
-        
         ax.plot_surface(X, Y, Z)
-        
         plt.show()
 
-       
-        
-        """
-        # Create the figure
-        fig = pyplot.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        # Generate the values
-        x_vals = XYZ[0]
-        y_vals = XYZ[1]
-        z_vals = XYZ[2]
-
-        # Plot the values
-        ax.scatter(x_vals, y_vals, z_vals, c = 'b', marker='o')
-        ax.set_xlabel('X-axis')
-        ax.set_ylabel('Y-axis')
-        ax.set_zlabel('Z-axis')
-
-         # Plot the surface
-        ax.plot_surface(x, y, z)
-        pyplot.show()"""
 ############################################################################################################   
     
     
     
 # Rinex 3.11
-wroclaw_navigation = RINEXnav('d:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx',2)
+wroclaw_navigation = RINEXnav('d:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx',1)
 
 # TEST
 
 # Testing method --> read_navigation_file(self)
-wroclaw_navigation.read_navigation_file()
+#wroclaw_navigation.read_navigation_file()
 
-# Testing method --> to_pandas_DataFrame
-wroclaw_navigation.to_pandas_DataFrame(satellites) 
+# Testing method --> to_pandas_DataFrame(satellites)
+#wroclaw_navigation.to_pandas_DataFrame(satellites) 
 
-# Testing method --> calculatin_sat_XYZ()
-wroclaw_navigation.calculatin_sat_XYZ(epochFrame)
+# Testing method --> calculatin_sat_XYZ(epochFrame)6
+#wroclaw_navigation.calculatin_sat_XYZ(epochFrame)
 
+# Testing calculation for 10 first satellites
+for first_ten in range(1,37):
+    wroclaw_navigation = RINEXnav('d:\Master_Thesis\Reading_Navigation_File\WROC00POL_R_20193160000_01D_GN.rnx',first_ten)
+    wroclaw_navigation.read_navigation_file()
+    wroclaw_navigation.to_pandas_DataFrame(satellites)
+    wroclaw_navigation.calculatin_sat_XYZ(epochFrame)
 # Testing method --> plot_sat_XYZ()
-wroclaw_navigation.plot_sat_XYZ(XYZ)
+#wroclaw_navigation.plot_sat_XYZ(XYZ)
