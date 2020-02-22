@@ -235,12 +235,11 @@ class RINEXnav:
         
         print("Tropoentric coordinates of satellites X:{} Y:{} Z:{}:".format(X,Y,Z))
         XYZ = [X, Y, Z]
-        XYZ_convert = [str(X), str(Y), str(Z)]
+        XYZ_convert = [str(X[0]), str(Y[0]), str(Z[0])]
         str_XYZ = ','.join(XYZ_convert)
         # to CSV file export
         with open('document.csv','a') as fd:
             fd.write(XYZ_Frame.name + ',' + str(XYZ_Frame['sat_num']) + ',' + str_XYZ + '\n')
-            # TODO dodac epoke do csv
         print(XYZ)
         return XYZ
 ############################################################################################################        
